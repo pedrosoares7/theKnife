@@ -1,0 +1,31 @@
+package org.mindswap.springtheknife.repository;
+
+import jakarta.transaction.Transactional;
+import org.mindswap.springtheknife.model.Restaurant;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
+
+import java.util.Optional;
+
+@Repository
+public interface RestaurantRepository extends JpaRepository<Restaurant, Long> {
+
+    Optional<Restaurant> findByEmail(String email);
+
+    Optional<Restaurant> findByPhoneNumber(String phoneNumber);
+
+    @Query("SELECT AVG(ue.rating) FROM UserExperience ue WHERE ue.restaurant.id = :restaurantId")
+    Double findAverageRating(Long restaurantId);
+
+    Page<Restaurant> findAll(Pageable pageable);
+
+    @Modifying
+    @Transactional
+    @Query(value = "ALTER TABLE restaurants AUTO_INCREMENT = 1", nativeQuery = true)
+    default void resetId() {
+    }
+}
